@@ -1,9 +1,9 @@
+require("colors");
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-require("dotenv").config();
-require("colors");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -22,16 +22,28 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const userCollection = client.db("AirCnc").collections("users");
+    // const database = client.db("AirCnc");
+    // const usersCollection = database.collection("users");
+    const usersCollection = client.db("AirCnc").collection("users");
 
-    // create token
-    app.post("/jwt", (req, res) => {
+    // user create & generate jwt
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
       const user = req.body;
-      const email = user?.email;
-      const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, {
-        expiresIn: "30d",
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+        expiresIn: "20d",
       });
-      res.send({ accessToken: token });
+      res.send({ result, token });
     });
 
     // database connection check
