@@ -22,9 +22,8 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // const database = client.db("AirCnc");
-    // const usersCollection = database.collection("users");
     const usersCollection = client.db("AirCnc").collection("users");
+    const bookingsCollection = client.db("AirCnc").collection("bookings");
 
     // user create & generate jwt
     app.put("/user/:email", async (req, res) => {
@@ -44,6 +43,13 @@ async function run() {
         expiresIn: "20d",
       });
       res.send({ result, token });
+    });
+
+    // save guest booking
+    app.post("/bookings", async (req, res) => {
+      const bookingData = req.body;
+      const result = await bookingsCollection.insertOne(bookingData);
+      res.send(result);
     });
 
     // database connection check
