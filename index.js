@@ -52,6 +52,31 @@ async function run() {
       res.send(result);
     });
 
+    // // Get Booking for user
+    // app.get("/myBookings/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const query = { guestEmail: email };
+    //   const result = await bookingsCollection.find(query).toArray();
+    //   res.send(result);
+    // });
+
+    // // Get All Bookings for Admin
+    // app.get("/allBookings", async (req, res) => {
+    //   const query = {};
+    //   const result = await bookingsCollection.find(query).toArray();
+    //   res.send(result);
+    // });
+
+    app.get("/bookings", async (req, res) => {
+      const email = req.query.email;
+      let filter = {};
+      if (email) {
+        filter = { guestEmail: email };
+      }
+      const bookings = await bookingsCollection.find(filter).toArray();
+      res.send(bookings);
+    });
+
     // database connection check
     client.connect();
     console.log("Database Connected".yellow);
