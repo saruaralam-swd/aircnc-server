@@ -30,6 +30,7 @@ async function run() {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email };
+
       const options = { upsert: true };
       const updateDoc = {
         $set: user,
@@ -39,10 +40,19 @@ async function run() {
         updateDoc,
         options
       );
+
       const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
         expiresIn: "20d",
       });
       res.send({ result, token });
+    });
+
+    // get user role
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email };
+      const result = await usersCollection.findOne(filter);
+      res.send(result);
     });
 
     // save guest booking
